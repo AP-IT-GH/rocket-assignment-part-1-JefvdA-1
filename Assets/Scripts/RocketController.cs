@@ -9,30 +9,35 @@ public class RocketController : MonoBehaviour
     [SerializeField] float thrusterForce = 1000f;
     [SerializeField] float tiltAngle = 100f;
 
-    private bool power = false;
-    private Rigidbody rb;
+    private bool _power = false;
+    private Rigidbody _rigidbody;
+    private TrailRenderer _trailRenderer;
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        _rigidbody = GetComponent<Rigidbody>();
+        _trailRenderer = GetComponent<TrailRenderer>();
     }
 
     private void Update()
     {
-        float tiltAroundZ = Input.GetAxisRaw("Horizontal") * tiltAngle;
-        power = Input.GetKey(KeyCode.Space);
+        var tiltAroundZ = Input.GetAxisRaw("Horizontal") * tiltAngle;
+        _power = Input.GetKey(KeyCode.Space);
+        
+        if (_power && !_trailRenderer.emitting)
+            _trailRenderer.emitting = true;
+        else if (!_power && _trailRenderer.emitting)
+            _trailRenderer.emitting = false;
 
         if (tiltAroundZ != 0)
-        {
             transform.Rotate(new Vector3(0, 0, tiltAngle * tiltAroundZ * Time.deltaTime));
-        }
     }
 
     private void FixedUpdate()
     {
-        if (power)
+        if (_power)
         {
-            rb.AddRelativeForce(Vector3.up * (thrusterForce * Time.deltaTime));
+            _rigidbody.AddRelativeForce(Vector3.up * (thrusterForce * Time.deltaTime));
         }
     }
 
